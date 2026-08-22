@@ -1884,6 +1884,12 @@ class Message(JsonDeserializable):
         self.guest_query_id: Optional[str] = None
         self.live_photo: Optional[LivePhoto] = None
         self.rich_message: Optional[RichMessage] = None
+        self.receiver_user: Optional[User] = None
+        self.ephemeral_message_id: Optional[str] = None
+        self.game: Optional[Game] = None
+        self.passport_data: Optional[PassportData] = None
+        self.community_chat_added: Optional[Chat] = None
+        self.community_chat_removed: Optional[Chat] = None
 
         for key in options:
             setattr(self, key, options[key])
@@ -2674,12 +2680,15 @@ class ForceReply(JsonSerializable):
     :return: Instance of the class
     :rtype: :class:`telebot.types.ForceReply`
     """
-    def __init__(self, selective: Optional[bool]=None, input_field_placeholder: Optional[str]=None):
+    def __init__(
+        self, force_reply: bool = True, selective: Optional[bool] = None,
+        input_field_placeholder: Optional[str] = None):
+        self.force_reply: bool = force_reply
         self.selective: Optional[bool] = selective
         self.input_field_placeholder: Optional[str] = input_field_placeholder
 
     def to_json(self):
-        json_dict = {'force_reply': True}
+        json_dict = {'force_reply': self.force_reply}
         if self.selective is not None:
             json_dict['selective'] = self.selective
         if self.input_field_placeholder:
@@ -2703,12 +2712,14 @@ class ReplyKeyboardRemove(JsonSerializable):
     :return: Instance of the class
     :rtype: :class:`telebot.types.ReplyKeyboardRemove`
     """
-    def __init__(self, selective: Optional[bool]=None):
+    def __init__(
+        self, remove_keyboard: bool = True, selective: Optional[bool] = None):
+        self.remove_keyboard: bool = remove_keyboard
         self.selective: Optional[bool] = selective
 
     def to_json(self):
-        json_dict = {'remove_keyboard': True}
-        if self.selective:
+        json_dict = {'remove_keyboard': self.remove_keyboard}
+        if self.selective is not None:
             json_dict['selective'] = self.selective
         return json.dumps(json_dict)
 
@@ -7921,9 +7932,14 @@ class ChatInviteLink(JsonSerializable, JsonDeserializable, Dictionaryable):
         obj['creator'] = User.de_json(obj['creator'])
         return cls(**obj)
 
-    def __init__(self, invite_link: str, creator: User, creates_join_request: bool, is_primary: bool, is_revoked: bool,
-                name: Optional[str] = None, expire_date: Optional[int] = None, member_limit: Optional[int] = None,
-                pending_join_request_count: Optional[int] = None, **kwargs):
+    def __init__(
+        self, invite_link: str, creator: User, creates_join_request: bool,
+        is_primary: bool, is_revoked: bool,
+        name: Optional[str] = None, expire_date: Optional[int] = None,
+        member_limit: Optional[int] = None,
+        pending_join_request_count: Optional[int] = None,
+        subscription_period: Optional[int] = None,
+        subscription_price: Optional[int] = None, **kwargs):
         self.invite_link: str = invite_link
         self.creator: User = creator
         self.creates_join_request: bool = creates_join_request
@@ -7933,6 +7949,8 @@ class ChatInviteLink(JsonSerializable, JsonDeserializable, Dictionaryable):
         self.expire_date: Optional[int] = expire_date
         self.member_limit: Optional[int] = member_limit
         self.pending_join_request_count: Optional[int] = pending_join_request_count
+        self.subscription_period: Optional[int] = subscription_period
+        self.subscription_price: Optional[int] = subscription_price
 
     def to_json(self):
         return json.dumps(self.to_dict())
