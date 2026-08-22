@@ -400,7 +400,7 @@ class ChatJoinRequest(JsonDeserializable):
                  query_id: Optional[str] = None, **kwargs):
         self.chat: Chat = chat
         self.from_user: User = from_user
-        self.date: str = date
+        self.date: int = date
         self.bio: Optional[str] = bio
         self.invite_link: Optional[ChatInviteLink] = invite_link
         self.user_chat_id: int = user_chat_id
@@ -533,11 +533,22 @@ class User(JsonDeserializable, Dictionaryable, JsonSerializable):
         return cls(**obj)
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: int, is_bot: bool, first_name: str, last_name: Optional[str] = None, username: Optional[str] = None, language_code: Optional[str] = None,
-                 is_premium: Optional[bool] = None, added_to_attachment_menu: Optional[bool] = None, can_join_groups: Optional[bool] = None, can_read_all_group_messages: Optional[bool] = None,
-                 supports_guest_queries: Optional[bool] = None, supports_inline_queries: Optional[bool] = None, can_connect_to_business: Optional[bool] = None, has_main_web_app: Optional[bool] = None,
-                 has_topics_enabled: Optional[bool] = None, allows_users_to_create_topics: Optional[bool] = None, can_manage_bots: Optional[bool] = None, supports_join_request_queries: Optional[bool] = None,
-                 **kwargs):
+    def __init__(
+        self, id: int, is_bot: bool, first_name: str,
+        last_name: Optional[str] = None, username: Optional[str] = None,
+        language_code: Optional[str] = None, is_premium: Optional[bool] = None,
+        added_to_attachment_menu: Optional[bool] = None,
+        can_join_groups: Optional[bool] = None,
+        can_read_all_group_messages: Optional[bool] = None,
+        supports_guest_queries: Optional[bool] = None,
+        supports_inline_queries: Optional[bool] = None,
+        can_connect_to_business: Optional[bool] = None,
+        has_main_web_app: Optional[bool] = None,
+        has_topics_enabled: Optional[bool] = None,
+        allows_users_to_create_topics: Optional[bool] = None,
+        can_manage_bots: Optional[bool] = None,
+        supports_join_request_queries: Optional[bool] = None,
+        **kwargs):
         self.id: int = id
         self.is_bot: bool = is_bot
         self.first_name: str = first_name
@@ -837,8 +848,10 @@ class ChatFullInfo(JsonDeserializable):
                  join_to_send_messages: Optional[bool] = None,
                  join_by_request: Optional[bool] = None,
                  has_restricted_voice_and_video_messages: Optional[bool] = None,
-                 is_forum: Optional[bool] = None, accent_color_id: int = None,
-                 max_reaction_count: int = None, active_usernames: Optional[List[str]] = None,
+                 is_forum: Optional[bool] = None,
+                 accent_color_id: int = 0,
+                 max_reaction_count: int = 0,
+                 active_usernames: Optional[List[str]] = None,
                  emoji_status_custom_emoji_id: Optional[str] = None,
                  has_hidden_members: Optional[bool] = None,
                  has_aggressive_anti_spam_enabled: Optional[bool] = None,
@@ -855,7 +868,7 @@ class ChatFullInfo(JsonDeserializable):
                  business_opening_hours: Optional[BusinessOpeningHours] = None,
                  personal_chat: Optional[Chat] = None, birthdate: Optional[Birthdate] = None,
                  can_send_paid_media: Optional[bool] = None,
-                 accepted_gift_types: Optional[AcceptedGiftTypes] = None,
+                 accepted_gift_types: AcceptedGiftTypes = None,
                  is_direct_messages: Optional[bool] = None, parent_chat: Optional[Chat] = None,
                  rating: Optional[UserRating] = None,
                  paid_message_star_count: Optional[int] = None,
@@ -870,7 +883,7 @@ class ChatFullInfo(JsonDeserializable):
         self.first_name: Optional[str] = first_name
         self.last_name: Optional[str] = last_name
         self.is_forum: Optional[bool] = is_forum
-        self.max_reaction_count: Optional[int] = max_reaction_count
+        self.max_reaction_count: int = max_reaction_count
         self.photo: Optional[ChatPhoto] = photo
         self.bio: Optional[str] = bio
         self.join_to_send_messages: Optional[bool] = join_to_send_messages
@@ -894,7 +907,7 @@ class ChatFullInfo(JsonDeserializable):
         self.has_aggressive_anti_spam_enabled: Optional[bool] = has_aggressive_anti_spam_enabled
         self.emoji_status_expiration_date: Optional[int] = emoji_status_expiration_date
         self.available_reactions: Optional[List[ReactionType]] = available_reactions
-        self.accent_color_id: Optional[int] = accent_color_id
+        self.accent_color_id: int = accent_color_id
         self.background_custom_emoji_id: Optional[str] = background_custom_emoji_id
         self.profile_accent_color_id: Optional[int] = profile_accent_color_id
         self.profile_background_custom_emoji_id: Optional[str] = profile_background_custom_emoji_id
@@ -2042,9 +2055,9 @@ class MessageEntity(Dictionaryable, JsonSerializable, JsonDeserializable):
         self.type: str = type
         self.offset: int = offset
         self.length: int = length
-        self.url: str = url
-        self.user: User = user
-        self.language: str = language
+        self.url: Optional[str] = url
+        self.user: Optional[User] = user
+        self.language: Optional[str] = language
         self.custom_emoji_id: Optional[str] = custom_emoji_id
         self.unix_time: Optional[int] = unix_time
         self.date_time_format: Optional[str] = date_time_format
@@ -2871,7 +2884,7 @@ class KeyboardButtonPollType(Dictionaryable):
     :rtype: :class:`telebot.types.KeyboardButtonPollType`
     """
     def __init__(self, type: Optional[str] = None):
-        self.type: str = type
+        self.type: Optional[str] = type
 
     def to_dict(self):
         return {'type': self.type}
@@ -2988,11 +3001,17 @@ class KeyboardButtonRequestChat(Dictionaryable):
     :rtype: :class:`telebot.types.KeyboardButtonRequestChat`
     """
 
-    def __init__(self, request_id: int, chat_is_channel: bool, chat_is_forum: Optional[bool]=None,
-                 chat_has_username: Optional[bool]=None, chat_is_created: Optional[bool]=None,
-                 user_administrator_rights: Optional[ChatAdministratorRights]=None,
-                 bot_administrator_rights: Optional[ChatAdministratorRights]=None, bot_is_member: Optional[bool]=None,
-                 request_title: Optional[bool]=None, request_photo: Optional[bool]=None, request_username: Optional[bool]=None):
+    def __init__(
+        self, request_id: int, chat_is_channel: bool,
+        chat_is_forum: Optional[bool] = None,
+        chat_has_username: Optional[bool] = None,
+        chat_is_created: Optional[bool] = None,
+        user_administrator_rights: Optional[ChatAdministratorRights] = None,
+        bot_administrator_rights: Optional[ChatAdministratorRights] = None,
+        bot_is_member: Optional[bool] = None,
+        request_title: Optional[bool] = None,
+        request_photo: Optional[bool] = None,
+        request_username: Optional[bool] = None):
         self.request_id: int = request_id
         self.chat_is_channel: bool = chat_is_channel
         self.chat_is_forum: Optional[bool] = chat_is_forum
@@ -3072,11 +3091,16 @@ class KeyboardButton(Dictionaryable, JsonSerializable):
     :return: Instance of the class
     :rtype: :class:`telebot.types.KeyboardButton`
     """
-    def __init__(self, text: str, request_contact: Optional[bool]=None,
-            request_location: Optional[bool]=None, request_poll: Optional[KeyboardButtonPollType]=None,
-            web_app: Optional[WebAppInfo]=None, request_user: Optional[KeyboardButtonRequestUser]=None,
-            request_chat: Optional[KeyboardButtonRequestChat]=None, request_users: Optional[KeyboardButtonRequestUsers]=None,
-            icon_custom_emoji_id: Optional[str]=None, style: Optional[str]=None, request_managed_bot: Optional[KeyboardButtonRequestManagedBot]=None):
+    def __init__(
+        self, text: str, request_contact: Optional[bool] = None,
+        request_location: Optional[bool] = None,
+        request_poll: Optional[KeyboardButtonPollType] = None,
+        web_app: Optional[WebAppInfo] = None,
+        request_user: Optional[KeyboardButtonRequestUser] = None,
+        request_chat: Optional[KeyboardButtonRequestChat] = None,
+        request_users: Optional[KeyboardButtonRequestUsers] = None,
+        icon_custom_emoji_id: Optional[str] = None, style: Optional[str] = None,
+        request_managed_bot: Optional[KeyboardButtonRequestManagedBot] = None):
         self.text: str = text
         self.request_contact: Optional[bool] = request_contact
         self.request_location: Optional[bool] = request_location
@@ -3162,7 +3186,9 @@ class InlineKeyboardMarkup(Dictionaryable, JsonSerializable, JsonDeserializable)
         inline_keyboard = [[InlineKeyboardButton.de_json(button) for button in row] for row in obj['inline_keyboard']]
         return cls(inline_keyboard=inline_keyboard)
 
-    def __init__(self, inline_keyboard: List[List[InlineKeyboardButton]] = None, row_width: int = 3, keyboard=None, **kwargs):
+    def __init__(
+        self, inline_keyboard: List[List[InlineKeyboardButton]] = None, row_width: int = 3,
+        keyboard: List[List[InlineKeyboardButton]] = None, **kwargs):
         if row_width > self.max_row_keys:
             # Todo: Will be replaced with Exception in future releases
             logger.error('Telegram does not support inline keyboard row width over %d.' % self.max_row_keys)
@@ -3319,7 +3345,7 @@ class InlineKeyboardButton(Dictionaryable, JsonSerializable, JsonDeserializable)
         self.switch_inline_query: Optional[str] = switch_inline_query
         self.switch_inline_query_current_chat: Optional[str] = switch_inline_query_current_chat
         self.switch_inline_query_chosen_chat: Optional[SwitchInlineQueryChosenChat] = switch_inline_query_chosen_chat
-        self.callback_game = callback_game # Not Implemented
+        self.callback_game: Optional[CallbackGame] = callback_game # Not Implemented
         self.pay: Optional[bool] = pay
         self.login_url: Optional[LoginUrl] = login_url
         self.copy_text: Optional[CopyTextButton] = copy_text
@@ -3385,8 +3411,10 @@ class LoginUrl(Dictionaryable, JsonSerializable, JsonDeserializable):
         obj = cls.check_json(json_string, dict_copy=False)
         return cls(**obj)
 
-    def __init__(self, url: str, forward_text: Optional[str]=None, bot_username: Optional[str]=None, request_write_access: Optional[bool]=None,
-            **kwargs):
+    def __init__(
+        self, url: str, forward_text: Optional[str] = None,
+        bot_username: Optional[str] = None,
+        request_write_access: Optional[bool] = None, **kwargs):
         self.url: str = url
         self.forward_text: Optional[str] = forward_text
         self.bot_username: Optional[str] = bot_username
@@ -3460,9 +3488,9 @@ class CallbackQuery(JsonDeserializable):
         data: Optional[str] = None,
         message: Optional[MaybeInaccessibleMessage] = None, inline_message_id: Optional[str] = None,
         game_short_name: Optional[str] = None, **kwargs):
-        self.id: int = id
+        self.id: str = id
         self.from_user: User = from_user
-        self.message: Optional[Union[Message, InaccessibleMessage]] = message
+        self.message: Optional[MaybeInaccessibleMessage] = message
         self.inline_message_id: Optional[str] = inline_message_id
         self.chat_instance: str = chat_instance
         self.data: Optional[str] = data
@@ -3646,11 +3674,16 @@ class ChatMemberAdministrator(ChatMember):
     :return: Instance of the class
     :rtype: :class:`telebot.types.ChatMemberAdministrator`
     """
-    def __init__(self, user: ChatMember, status: str, can_be_edited: bool, is_anonymous: bool, can_manage_chat: bool, can_delete_messages: bool,
-                 can_manage_video_chats: bool, can_restrict_members: bool, can_promote_members: bool, can_change_info: bool, can_invite_users: bool,
-                 can_post_stories: bool, can_edit_stories: bool, can_delete_stories: bool, can_post_messages: Optional[bool] = None, can_edit_messages: Optional[bool] = None,
-                 can_pin_messages: Optional[bool] = None, can_manage_topics: Optional[bool] = None, custom_title: Optional[str] = None, can_manage_direct_messages: Optional[bool] = None,
-                 can_manage_tags: Optional[bool] = None, **kwargs):
+    def __init__(
+        self, user: ChatMember, status: str, can_be_edited: bool, is_anonymous: bool,
+        can_manage_chat: bool, can_delete_messages: bool,
+        can_manage_video_chats: bool, can_restrict_members: bool, can_promote_members: bool,
+        can_change_info: bool, can_invite_users: bool, can_post_stories: bool,
+        can_edit_stories: bool, can_delete_stories: bool,
+        can_post_messages: Optional[bool] = None, can_edit_messages: Optional[bool] = None,
+        can_pin_messages: Optional[bool] = None, can_manage_topics: Optional[bool] = None,
+        custom_title: Optional[str] = None, can_manage_direct_messages: Optional[bool] = None,
+        can_manage_tags: Optional[bool] = None, **kwargs):
         super().__init__(user, status, **kwargs)
         self.can_be_edited: bool = can_be_edited
         self.is_anonymous: bool = is_anonymous
@@ -3779,11 +3812,15 @@ class ChatMemberRestricted(ChatMember):
     :return: Instance of the class
     :rtype: :class:`telebot.types.ChatMemberRestricted`
     """
-    def __init__(self, user: ChatMember, status: str, is_member: bool, can_send_messages: bool, can_send_audios: bool, can_send_documents: bool,
-                 can_send_photos: bool, can_send_videos: bool, can_send_video_notes: bool, can_send_voice_notes: bool, can_send_polls: bool,
-                 can_send_other_messages: bool, can_add_web_page_previews: bool,
-                 can_change_info: bool, can_invite_users: bool, can_pin_messages: bool, can_manage_topics: bool,
-                 until_date: int = None, tag: Optional[str] = None, can_edit_tag: bool = None, can_react_to_messages: bool = None, **kwargs):
+    def __init__(
+        self, user: ChatMember, status: str, is_member: bool,
+        can_send_messages: bool, can_send_audios: bool, can_send_documents: bool,
+        can_send_photos: bool, can_send_videos: bool, can_send_video_notes: bool,
+        can_send_voice_notes: bool, can_send_polls: bool,
+        can_send_other_messages: bool, can_add_web_page_previews: bool,
+        can_change_info: bool, can_invite_users: bool, can_pin_messages: bool,
+        can_manage_topics: bool, until_date: int = None, tag: Optional[str] = None,
+        can_edit_tag: bool = None, can_react_to_messages: bool = None, **kwargs):
         super().__init__(user, status, **kwargs)
         self.is_member: bool = is_member
         self.can_send_messages: bool = can_send_messages
@@ -3800,10 +3837,10 @@ class ChatMemberRestricted(ChatMember):
         self.can_invite_users: bool = can_invite_users
         self.can_pin_messages: bool = can_pin_messages
         self.can_manage_topics: bool = can_manage_topics
-        self.until_date: Optional[int] = until_date
+        self.until_date: int = until_date
         self.tag: Optional[str] = tag
-        self.can_edit_tag: Optional[bool] = can_edit_tag
-        self.can_react_to_messages: Optional[bool] = can_react_to_messages
+        self.can_edit_tag: bool = can_edit_tag
+        self.can_react_to_messages: bool = can_react_to_messages
 
 
 # noinspection PyUnresolvedReferences
@@ -3846,7 +3883,7 @@ class ChatMemberBanned(ChatMember):
     """
     def __init__(self, user, status, until_date: int = 0, **kwargs):
         super().__init__(user, status, **kwargs)
-        self.until_date: Optional[int] = until_date
+        self.until_date: int = until_date
 
 
 class ChatPermissions(JsonDeserializable, JsonSerializable, Dictionaryable):
@@ -6245,13 +6282,16 @@ class Animation(JsonDeserializable):
             obj['thumbnail'] = None
         return cls(**obj)
 
-    def __init__(self, file_id: str, file_unique_id: str, width: int = None, height: int = None, duration: int = None,
-                 thumbnail: Optional[PhotoSize] = None, file_name: Optional[str] = None, mime_type: Optional[str] = None, file_size: Optional[int] = None, **kwargs):
+    def __init__(
+            self, file_id: str, file_unique_id: str, width: int = None, height: int = None,
+            duration: int = None, thumbnail: Optional[PhotoSize] = None,
+            file_name: Optional[str] = None, mime_type: Optional[str] = None,
+            file_size: Optional[int] = None, **kwargs):
         self.file_id: str = file_id
         self.file_unique_id: str = file_unique_id
-        self.width: Optional[int] = width
-        self.height: Optional[int] = height
-        self.duration: Optional[int] = duration
+        self.width: int = width
+        self.height: int = height
+        self.duration: int = duration
         self.thumbnail: Optional[PhotoSize] = thumbnail
         self.file_name: Optional[str] = file_name
         self.mime_type: Optional[str] = mime_type
@@ -6850,30 +6890,34 @@ class InputMedia(Dictionaryable, JsonSerializable):
 
     Telegram documentation: https://core.telegram.org/bots/api#inputmedia
     """
-    def __init__(self, type, media=None, caption=None, parse_mode=None, caption_entities=None, thumbnail=None):
+    def __init__(self, type: str, media: Optional[Union[str, InputFile]] = None, caption: Optional[str] = None,
+                 parse_mode: Optional[str] = None, caption_entities: Optional[List[MessageEntity]] = None,
+                 thumbnail: Optional[InputFile] = None):
         self.type: str = type
-        self.media: Optional[str] = media
+        self.media: Optional[Union[str, InputFile]] = media
         self.caption: Optional[str] = caption
         self.parse_mode: Optional[str] = parse_mode
         self.caption_entities: Optional[List[MessageEntity]] = caption_entities
-        self.thumbnail: Optional[Union[str, InputFile]] = thumbnail
+        self.thumbnail: Optional[InputFile] = thumbnail
 
-        if thumbnail is None:
-            self._thumbnail_name = ''
-            self._thumbnail_dic = None
-        elif service_utils.is_string(self.thumbnail):
-            self._thumbnail_name = ''
-            self._thumbnail_dic = self.thumbnail
-        else:
-            self._thumbnail_name = service_utils.generate_random_token()
-            self._thumbnail_dic = 'attach://{0}'.format(self._thumbnail_name)
-
+        # Media in fact cannot be None: empty media is poped in appropriate classes below
         if service_utils.is_string(self.media):
             self._media_name = ''
             self._media_dic = self.media
         else:
             self._media_name = service_utils.generate_random_token()
             self._media_dic = 'attach://{0}'.format(self._media_name)
+
+        if thumbnail is None:
+            self._thumbnail_name = ''
+            self._thumbnail_dic = None
+        elif service_utils.is_string(self.thumbnail):
+            # It cannot be string because cannot be reused
+            self._thumbnail_name = ''
+            self._thumbnail_dic = self.thumbnail
+        else:
+            self._thumbnail_name = service_utils.generate_random_token()
+            self._thumbnail_dic = 'attach://{0}'.format(self._thumbnail_name)
 
         if self.__class__ is InputMedia:
             # Make InputMedia as ABC some time...
@@ -6919,10 +6963,10 @@ class InputMediaPhoto(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediaphoto
 
     :param type: Type of the media, must be photo
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param caption: Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
     :type caption: :obj:`str`
@@ -6970,13 +7014,13 @@ class InputMediaVideo(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediavideo
 
     :param type: Type of the media, must be video
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name.
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param thumbnail: Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    :type thumbnail: InputFile or :obj:`str`
+    :type thumbnail: :class:`telebot.types.InputFile`
 
     :param cover: Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name.
     :type cover: :obj:`str` or :class:`telebot.types.InputFile`
@@ -7014,7 +7058,7 @@ class InputMediaVideo(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaVideo`
     """
-    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[Union[str, InputFile]] = None,
+    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None,
                     caption: Optional[str] = None, parse_mode: Optional[str] = None,
                     caption_entities: Optional[List[MessageEntity]] = None, width: Optional[int] = None,
                     height: Optional[int] = None, duration: Optional[int] = None,
@@ -7029,8 +7073,18 @@ class InputMediaVideo(InputMedia):
         self.supports_streaming: Optional[bool] = supports_streaming
         self.has_spoiler: Optional[bool] = has_spoiler
         self.show_caption_above_media: Optional[bool] = show_caption_above_media
-        self.cover: Optional[str] = cover
+        self.cover: Optional[Union[str, InputFile]] = cover
         self.start_timestamp: Optional[int] = start_timestamp
+
+        if cover is None:
+            self._cover_name = ''
+            self._cover_dic = None
+        elif service_utils.is_string(self.cover):
+            self._cover_name = ''
+            self._cover_dic = self.cover
+        else:
+            self._cover_name = service_utils.generate_random_token()
+            self._cover_dic = 'attach://{0}'.format(self._cover_name)
 
     @property
     def thumb(self) -> Optional[Union[str, Any]]:
@@ -7051,8 +7105,8 @@ class InputMediaVideo(InputMedia):
             ret['has_spoiler'] = self.has_spoiler
         if self.show_caption_above_media is not None:
             ret['show_caption_above_media'] = self.show_caption_above_media
-        if self.cover:
-            ret['cover'] = self.cover
+        if self._cover_dic:
+            ret['cover'] = self._cover_dic
         if self.start_timestamp:
             ret['start_timestamp'] = self.start_timestamp
         return ret
@@ -7065,13 +7119,13 @@ class InputMediaAnimation(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediaanimation
 
     :param type: Type of the media, must be animation
-    :type type: :obj:`typing.Any`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param thumbnail: Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>
-    :type thumbnail: InputFile or :obj:`str`
+    :type thumbnail: :class:`telebot.types.InputFile`
 
     :param caption: Optional. Caption of the animation to be sent, 0-1024 characters after entities parsing
     :type caption: :obj:`str`
@@ -7101,7 +7155,7 @@ class InputMediaAnimation(InputMedia):
     :rtype: :class:`telebot.types.InputMediaAnimation`
     """
 
-    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[Union[str, InputFile]] = None,
+    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None,
                     caption: Optional[str] = None, parse_mode: Optional[str] = None,
                     caption_entities: Optional[List[MessageEntity]] = None, width: Optional[int] = None,
                     height: Optional[int] = None, duration: Optional[int] = None,
@@ -7113,7 +7167,6 @@ class InputMediaAnimation(InputMedia):
         self.duration: Optional[int] = duration
         self.has_spoiler: Optional[bool] = has_spoiler
         self.show_caption_above_media: Optional[bool] = show_caption_above_media
-
 
     @property
     def thumb(self) -> Optional[Union[str, Any]]:
@@ -7142,13 +7195,13 @@ class InputMediaAudio(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediaaudio
 
     :param type: Type of the media, must be audio
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param thumbnail: Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>
-    :type thumbnail: InputFile or :obj:`str`
+    :type thumbnail: :class:`telebot.types.InputFile`
 
     :param caption: Optional. Caption of the audio to be sent, 0-1024 characters after entities parsing
     :type caption: :obj:`str`
@@ -7171,7 +7224,7 @@ class InputMediaAudio(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaAudio`
     """
-    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[Union[str, InputFile]] = None,
+    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None,
                     caption: Optional[str] = None, parse_mode: Optional[str] = None,
                     caption_entities: Optional[List[MessageEntity]] = None, duration: Optional[int] = None,
                     performer: Optional[str] = None, title: Optional[str] = None):
@@ -7204,13 +7257,13 @@ class InputMediaDocument(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediadocument
 
     :param type: Type of the media, must be document
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param thumbnail: Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>
-    :type thumbnail: InputFile or :obj:`str`
+    :type thumbnail: :class:`telebot.types.InputFile`
 
     :param caption: Optional. Caption of the document to be sent, 0-1024 characters after entities parsing
     :type caption: :obj:`str`
@@ -7227,7 +7280,7 @@ class InputMediaDocument(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaDocument`
     """
-    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[Union[str, InputFile]] = None,
+    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None,
                     caption: Optional[str] = None, parse_mode: Optional[str] = None,
                     caption_entities: Optional[List[MessageEntity]] = None,
                     disable_content_type_detection: Optional[bool] = None):
@@ -7254,13 +7307,13 @@ class InputMediaLivePhoto(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmedialivephoto
 
     :param type: Type of the media, must be live_photo
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. Sending live photos by a URL is currently unsupported.
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param photo: The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. Sending live photos by a URL is currently unsupported.
-    :type photo: :obj:`str`
+    :type photo: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param caption: Optional. Caption of the live photo to be sent, 0-1024 characters after entities parsing
     :type caption: :obj:`str`
@@ -7280,17 +7333,26 @@ class InputMediaLivePhoto(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaLivePhoto`
     """
-    def __init__(self, media: str, photo: str, caption: Optional[str] = None, parse_mode: Optional[str] = None,
-                 caption_entities: Optional[List[MessageEntity]] = None, show_caption_above_media: Optional[bool] = None, has_spoiler: Optional[bool] = None):
-        super(InputMediaLivePhoto, self).__init__(type="live_photo", media=media, caption=caption, parse_mode=parse_mode, caption_entities=caption_entities)
-        self.photo: str = photo
+    def __init__(
+        self, media: Union[str, InputFile], photo: Union[str, InputFile] = None,
+        caption: Optional[str] = None, parse_mode: Optional[str] = None,
+        caption_entities: Optional[List[MessageEntity]] = None,
+        show_caption_above_media: Optional[bool] = None,
+        has_spoiler: Optional[bool] = None):
+        super(InputMediaLivePhoto, self).__init__(
+            type="live_photo", media=media, caption=caption,
+            parse_mode=parse_mode, caption_entities=caption_entities)
+        self.photo: Union[str, InputFile] = photo
         self.show_caption_above_media: Optional[bool] = show_caption_above_media
         self.has_spoiler: Optional[bool] = has_spoiler
         self._photo_name = service_utils.generate_random_token()
-        if not service_utils.is_string(photo):
-            self._photo_dic = 'attach://{0}'.format(self._photo_name)
+
+        if service_utils.is_string(self.photo):
+            self._photo_name = ''
+            self._photo_dic = self.photo
         else:
-            self._photo_dic = photo
+            self._photo_name = service_utils.generate_random_token()
+            self._photo_dic = 'attach://{0}'.format(self._photo_name)
 
     def to_dict(self):
         json_dict = super(InputMediaLivePhoto, self).to_dict()
@@ -7309,6 +7371,7 @@ class InputMediaLivePhoto(InputMedia):
             files[self._photo_name] = self.photo
         return media, files
 
+
 class InputMediaLocation(InputMedia):
     """
     Represents a location to be sent.
@@ -7316,7 +7379,7 @@ class InputMediaLocation(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmedialocation
 
     :param type: Type of the media, must be location
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param latitude: Latitude of the location
     :type latitude: :obj:`float`
@@ -7342,9 +7405,9 @@ class InputMediaLocation(InputMedia):
         json_dict['longitude'] = self.longitude
         if self.horizontal_accuracy is not None:
             json_dict['horizontal_accuracy'] = self.horizontal_accuracy
-        # Remove 'media' field as it's not used for location
-        json_dict.pop('media', None)
+        json_dict.pop('media', None)   # Remove 'media' field as it's not used for location
         return json_dict
+
 
 class InputMediaSticker(InputMedia):
     """
@@ -7353,10 +7416,10 @@ class InputMediaSticker(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediasticker
 
     :param type: Type of the media, must be sticker
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass “attach://<file_attach_name>” to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name> name.
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param emoji: Optional. Emoji associated with the sticker; only for just uploaded stickers
     :type emoji: :obj:`str`
@@ -7364,7 +7427,7 @@ class InputMediaSticker(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaSticker`
     """
-    def __init__(self, media: str, emoji: Optional[str] = None):
+    def __init__(self, media: Union[str, InputFile], emoji: Optional[str] = None):
         super(InputMediaSticker, self).__init__(type="sticker", media=media)
         self.emoji: Optional[str] = emoji
 
@@ -7374,6 +7437,7 @@ class InputMediaSticker(InputMedia):
             json_dict['emoji'] = self.emoji
         return json_dict
 
+
 class InputMediaVenue(InputMedia):
     """
     Represents a venue to be sent.
@@ -7381,7 +7445,7 @@ class InputMediaVenue(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmediavenue
 
     :param type: Type of the media, must be venue
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param latitude: Latitude of the location
     :type latitude: :obj:`float`
@@ -7410,8 +7474,12 @@ class InputMediaVenue(InputMedia):
     :return: Instance of the class
     :rtype: :class:`telebot.types.InputMediaVenue`
     """
-    def __init__(self, latitude: float, longitude: float, title: str, address: str, foursquare_id: Optional[str] = None,
-                 foursquare_type: Optional[str] = None, google_place_id: Optional[str] = None, google_place_type: Optional[str] = None):
+    def __init__(
+        self, latitude: float, longitude: float, title: str, address: str,
+        foursquare_id: Optional[str] = None,
+        foursquare_type: Optional[str] = None,
+        google_place_id: Optional[str] = None,
+        google_place_type: Optional[str] = None):
         super(InputMediaVenue, self).__init__(type="venue", media="")
         self.latitude: float = latitude
         self.longitude: float = longitude
@@ -7436,8 +7504,7 @@ class InputMediaVenue(InputMedia):
             json_dict['google_place_id'] = self.google_place_id
         if self.google_place_type:
             json_dict['google_place_type'] = self.google_place_type
-        # Remove 'media' field as it's not used for venue
-        json_dict.pop('media', None)
+        json_dict.pop('media', None)    # Remove 'media' field as it's not used for venue
         return json_dict
     
 
@@ -7527,8 +7594,10 @@ class InputPollOption(JsonSerializable):
     :return: Instance of the class
     :rtype: :class:`telebot.types.PollOption`
     """
-    def __init__(self, text: str, text_parse_mode: Optional[str] = None, text_entities: Optional[List[MessageEntity]] = None,
-                    media: Optional[InputPollOptionMedia] = None, **kwargs):
+    def __init__(
+        self, text: str, text_parse_mode: Optional[str] = None,
+        text_entities: Optional[List[MessageEntity]] = None,
+        media: Optional[InputPollOptionMedia] = None, **kwargs):
         self.text: str = text
         self.text_parse_mode: Optional[str] = text_parse_mode
         self.text_entities: Optional[List[MessageEntity]] = text_entities
@@ -7644,19 +7713,22 @@ class Poll(JsonDeserializable):
             obj['media'] = PollMedia.de_json(obj['media'])
         if 'explanation_media' in obj:
             obj['explanation_media'] = PollMedia.de_json(obj['explanation_media'])
-        
         return cls(**obj)
 
     def __init__(
-            self,
-            question: str, options: List[PollOption],
-            id: str = None, total_voter_count: int = None, is_closed: bool = None, is_anonymous: bool = None,
+            self, question: str, options: List[PollOption],
+            id: str = None, total_voter_count: int = None,
+            is_closed: bool = None, is_anonymous: bool = None,
             type: str = None, allows_multiple_answers: bool = None,
-            explanation: str = None, explanation_entities: List[MessageEntity] = None, open_period: int = None,
-            close_date: int = None, poll_type: str = None, question_entities: List[MessageEntity] = None,
-            correct_option_ids: List[int] = None, allows_revoting: bool = None,
-            description: str = None, description_entities: List[MessageEntity] = None,
-            media: PollMedia = None, members_only: bool = None, country_codes: List[str] = None, explanation_media: PollMedia = None, **kwargs):
+            explanation: Optional[str] = None, explanation_entities: Optional[List[MessageEntity]] = None,
+            question_entities: Optional[List[MessageEntity]] = None,
+            open_period: Optional[int] = None, close_date: Optional[int] = None,
+            poll_type: Optional[str] = None, correct_option_ids: Optional[List[int]] = None,
+            allows_revoting: bool = None, description: Optional[str] = None,
+            description_entities: Optional[List[MessageEntity]] = None,
+            media: Optional[PollMedia] = None, members_only: bool = None,
+            country_codes: Optional[List[str]] = None,
+            explanation_media: Optional[PollMedia] = None, **kwargs):
         self.id: str = id
         self.question: str = question
         self.options: List[PollOption] = options
@@ -7669,19 +7741,19 @@ class Poll(JsonDeserializable):
             if type is None:
                 self.type: str = poll_type
         self.allows_multiple_answers: bool = allows_multiple_answers
-        self.explanation: str = explanation
-        self.explanation_entities: List[MessageEntity] = explanation_entities
-        self.question_entities: List[MessageEntity] = question_entities
-        self.open_period: int = open_period
-        self.close_date: int = close_date
-        self.correct_option_ids: List[int] = correct_option_ids
+        self.explanation: Optional[str] = explanation
+        self.explanation_entities: Optional[List[MessageEntity]] = explanation_entities
+        self.question_entities: Optional[List[MessageEntity]] = question_entities
+        self.open_period: Optional[int] = open_period
+        self.close_date: Optional[int] = close_date
+        self.correct_option_ids: Optional[List[int]] = correct_option_ids
         self.allows_revoting: bool = allows_revoting
-        self.description: str = description
-        self.description_entities: List[MessageEntity] = description_entities
-        self.media: PollMedia = media
-        self.explanation_media: PollMedia = explanation_media
+        self.description: Optional[str] = description
+        self.description_entities: Optional[List[MessageEntity]] = description_entities
+        self.media: Optional[PollMedia] = media
+        self.explanation_media: Optional[PollMedia] = explanation_media
         self.members_only: bool = members_only
-        self.country_codes: List[str] = country_codes
+        self.country_codes: Optional[List[str]] = country_codes
         
     @property
     def correct_option_id(self) -> Optional[int]:
@@ -8243,12 +8315,9 @@ class ChatAdministratorRights(JsonDeserializable, JsonSerializable, Dictionaryab
         can_promote_members: bool, can_change_info: bool, can_invite_users: bool,
         can_post_messages: Optional[bool]=None, can_edit_messages: Optional[bool]=None,
         can_pin_messages: Optional[bool]=None, can_manage_topics: Optional[bool]=None,
-        can_post_stories: Optional[bool]=None, can_edit_stories: Optional[bool]=None,
-        can_delete_stories: Optional[bool]=None, can_manage_direct_messages: Optional[bool]=None,
-        can_manage_tags: Optional[bool]=None,
-        **kwargs
-        ) -> None:
-
+        can_post_stories: bool = False, can_edit_stories: bool = False,
+        can_delete_stories: bool = False, can_manage_direct_messages: Optional[bool] = None,
+        can_manage_tags: Optional[bool]=None, **kwargs) -> None:
         self.is_anonymous: bool = is_anonymous
         self.can_manage_chat: bool = can_manage_chat
         self.can_delete_messages: bool = can_delete_messages
@@ -8261,9 +8330,9 @@ class ChatAdministratorRights(JsonDeserializable, JsonSerializable, Dictionaryab
         self.can_edit_messages: Optional[bool] = can_edit_messages
         self.can_pin_messages: Optional[bool] = can_pin_messages
         self.can_manage_topics: Optional[bool] = can_manage_topics
-        self.can_post_stories: Optional[bool] = can_post_stories
-        self.can_edit_stories: Optional[bool] = can_edit_stories
-        self.can_delete_stories: Optional[bool] = can_delete_stories
+        self.can_post_stories: bool = can_post_stories
+        self.can_edit_stories: bool = can_edit_stories
+        self.can_delete_stories: bool = can_delete_stories
         self.can_manage_direct_messages: Optional[bool] = can_manage_direct_messages
         self.can_manage_tags: Optional[bool] = can_manage_tags
 
@@ -8560,8 +8629,10 @@ class WriteAccessAllowed(JsonDeserializable):
         return cls(**obj)
 
 
-    def __init__(self, from_request: Optional[bool]=None, web_app_name: Optional[str]=None, from_attachment_menu: Optional[bool]=None,
-                 **kwargs) -> None:
+    def __init__(
+        self, from_request: Optional[bool] = None,
+        web_app_name: Optional[str] = None,
+        from_attachment_menu: Optional[bool] = None, **kwargs) -> None:
         self.web_app_name: Optional[str] = web_app_name
         self.from_request: Optional[bool] = from_request
         self.from_attachment_menu: Optional[bool] = from_attachment_menu
@@ -8698,10 +8769,7 @@ class InputSticker(Dictionaryable, JsonSerializable):
             self._sticker_name = ''
             self._sticker_dic = self.sticker
         else:
-            # work like in inputmedia: convert_input_media
             self._sticker_name = service_utils.generate_random_token()
-            # uses attach://_sticker_name for sticker param. then,
-            # actual file is sent using files param of the request
             self._sticker_dic = 'attach://{0}'.format(self._sticker_name)
 
     def to_dict(self) -> dict:
@@ -8710,7 +8778,6 @@ class InputSticker(Dictionaryable, JsonSerializable):
             'emoji_list': self.emoji_list,
             'format': self.format
         }
-
         if self.mask_position is not None:
             json_dict['mask_position'] = self.mask_position.to_dict()
         if self.keywords is not None:
@@ -8724,7 +8791,6 @@ class InputSticker(Dictionaryable, JsonSerializable):
     def convert_input_sticker(self) -> Tuple[str, Optional[dict]]:
         if service_utils.is_string(self.sticker):
             return self.to_json(), None
-
         return self.to_json(), {self._sticker_name: self.sticker}
 
 
@@ -8760,8 +8826,11 @@ class SwitchInlineQueryChosenChat(JsonDeserializable, Dictionaryable, JsonSerial
         obj = cls.check_json(json_string)
         return cls(**obj)
 
-    def __init__(self, query: Optional[str]=None, allow_user_chats: Optional[bool]=None, allow_bot_chats: Optional[bool]=None,
-                    allow_group_chats: Optional[bool]=None, allow_channel_chats: Optional[bool]=None) -> None:
+    def __init__(
+        self, query: Optional[str] = None, allow_user_chats: Optional[bool] = None,
+        allow_bot_chats: Optional[bool] = None,
+        allow_group_chats: Optional[bool] = None,
+        allow_channel_chats: Optional[bool] = None) -> None:
         self.query: Optional[str] = query
         self.allow_user_chats: Optional[bool] = allow_user_chats
         self.allow_bot_chats: Optional[bool] = allow_bot_chats
@@ -9051,8 +9120,11 @@ class MessageReactionUpdated(JsonDeserializable):
         obj['new_reaction'] = [ReactionType.de_json(reaction) for reaction in obj['new_reaction']]
         return cls(**obj)
 
-    def __init__(self, chat: Chat, message_id: int, date: int, old_reaction: List[ReactionType], new_reaction: List[ReactionType],
-                 user: Optional[User]=None, actor_chat: Optional[Chat]=None, **kwargs) -> None:
+    def __init__(
+        self, chat: Chat, message_id: int, date: int,
+        old_reaction: List[ReactionType], new_reaction: List[ReactionType],
+        user: Optional[User] = None, actor_chat: Optional[Chat] = None,
+        **kwargs) -> None:
         self.chat: Chat = chat
         self.message_id: int = message_id
         self.user: Optional[User] = user
@@ -9578,7 +9650,8 @@ class Giveaway(JsonDeserializable):
     def __init__(self, chats: List[Chat], winners_selection_date: int, winner_count: int,
                  only_new_members: Optional[bool] = None, has_public_winners: Optional[bool] = None,
                  prize_description: Optional[str] = None, country_codes: Optional[List[str]] = None,
-                 premium_subscription_month_count: Optional[int] = None, prize_star_count: Optional[int] = None, **kwargs) -> None:
+                 premium_subscription_month_count: Optional[int] = None,
+                 prize_star_count: Optional[int] = None, **kwargs) -> None:
         self.chats: List[Chat] = chats
         self.winners_selection_date: int = winners_selection_date
         self.winner_count: int = winner_count
@@ -9693,8 +9766,11 @@ class GiveawayCompleted(JsonDeserializable):
             obj['giveaway_message'] = Message.de_json(obj['giveaway_message'])
         return cls(**obj)
 
-    def __init__(self, winner_count: int, unclaimed_prize_count: Optional[int] = None,
-                    giveaway_message: Optional[Message] = None, is_star_giveaway: Optional[bool] = None, **kwargs) -> None:
+    def __init__(
+        self, winner_count: int,
+        unclaimed_prize_count: Optional[int] = None,
+        giveaway_message: Optional[Message] = None,
+        is_star_giveaway: Optional[bool] = None, **kwargs) -> None:
         self.winner_count: int = winner_count
         self.unclaimed_prize_count: Optional[int] = unclaimed_prize_count
         self.giveaway_message: Optional[Message] = giveaway_message
@@ -9759,7 +9835,7 @@ class TextQuote(JsonDeserializable):
                  is_manual: Optional[bool] = None, **kwargs) -> None:
         self.text: str = text
         self.entities: Optional[List[MessageEntity]] = entities
-        self.position: Optional[int] = position
+        self.position: int = position
         self.is_manual: Optional[bool] = is_manual
 
     @property
@@ -9825,7 +9901,7 @@ class ReplyParameters(JsonDeserializable, Dictionaryable, JsonSerializable):
                  quote_parse_mode: Optional[str] = None, quote_entities: Optional[List[MessageEntity]] = None,
                  quote_position: Optional[int] = None, checklist_task_id: Optional[int] = None,
                     poll_option_id: Optional[str] = None, ephemeral_message_id: Optional[int] = None, **kwargs) -> None:
-        self.message_id: int = message_id
+        self.message_id: Optional[int] = message_id
         self.chat_id: Optional[Union[int, str]] = chat_id
         self.allow_sending_without_reply: Optional[bool] = allow_sending_without_reply
         self.quote: Optional[str] = quote
@@ -11489,7 +11565,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name.
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :return: Instance of the class
     :rtype: :class:`InputPaidMediaPhoto`
@@ -11497,6 +11573,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
 
     def __init__(self, media: Union[str, InputFile], **kwargs):
         super().__init__(type='photo', media=media)
+
 
 class InputPaidMediaLivePhoto(InputPaidMedia):
     """
@@ -11519,13 +11596,13 @@ class InputPaidMediaLivePhoto(InputPaidMedia):
     def __init__(self, media: Union[str, InputFile], photo: Union[str, InputFile], **kwargs):
         super().__init__(type='live_photo', media=media)
         self.photo: Union[str, InputFile] = photo
-        self._photo_name = service_utils.generate_random_token()
-        self._photo_dic = None
 
-        if not service_utils.is_string(self.photo):
-            self._photo_dic = 'attach://{0}'.format(self._photo_name)
-        else:
+        if service_utils.is_string(self.photo):
+            self._photo_name = ''
             self._photo_dic = self.photo
+        else:
+            self._photo_name = service_utils.generate_random_token()
+            self._photo_dic = 'attach://{0}'.format(self._photo_name)
 
     def to_dict(self):
         data = super().to_dict()
@@ -11543,10 +11620,10 @@ class InputPaidMediaVideo(InputPaidMedia):
     :type type: :obj:`str`
 
     :param media: File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name.
-    :type media: :obj:`str`
+    :type media: :obj:`str` or :class:`telebot.types.InputFile`
 
     :param thumbnail: Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    :type thumbnail: :class:`InputFile`
+    :type thumbnail: :class:`telebot.types.InputFile`
 
     :param cover: Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name.
     :type cover: :obj:`str` or :class:`telebot.types.InputFile`
@@ -11570,22 +11647,47 @@ class InputPaidMediaVideo(InputPaidMedia):
     :rtype: :class:`InputPaidMediaVideo`
 
     """
-    def __init__(self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None, width: Optional[int] = None,
-                 height: Optional[int] = None, duration: Optional[int] = None, supports_streaming: Optional[bool] = None,
-                 cover: Optional[Union[str,InputFile]] = None, start_timestamp: Optional[int] = None, **kwargs):
+    def __init__(
+        self, media: Union[str, InputFile], thumbnail: Optional[InputFile] = None,
+        width: Optional[int] = None, height: Optional[int] = None,
+        duration: Optional[int] = None,
+        supports_streaming: Optional[bool] = None,
+        cover: Optional[Union[str, InputFile]] = None, start_timestamp: Optional[int] = None,
+        **kwargs):
         super().__init__(type='video', media=media)
-        self.thumbnail: Optional[Union[str,InputFile]] = thumbnail
+        self.thumbnail: Optional[InputFile] = thumbnail
         self.width: Optional[int] = width
         self.height: Optional[int] = height
         self.duration: Optional[int] = duration
         self.supports_streaming: Optional[bool] = supports_streaming
-        self.cover: Optional[Union[str,InputFile]] = cover
+        self.cover: Optional[Union[str, InputFile]] = cover
         self.start_timestamp: Optional[int] = start_timestamp
+
+        if thumbnail is None:
+            self._thumbnail_name = ''
+            self._thumbnail_dic = None
+        elif service_utils.is_string(self.thumbnail):
+            # It cannot be string because cannot be reused
+            self._thumbnail_name = ''
+            self._thumbnail_dic = self.thumbnail
+        else:
+            self._thumbnail_name = service_utils.generate_random_token()
+            self._thumbnail_dic = 'attach://{0}'.format(self._thumbnail_name)
+
+        if cover is None:
+            self._cover_name = ''
+            self._cover_dic = None
+        elif service_utils.is_string(self.cover):
+            self._cover_name = ''
+            self._cover_dic = self.cover
+        else:
+            self._cover_name = service_utils.generate_random_token()
+            self._cover_dic = 'attach://{0}'.format(self._cover_name)
 
     def to_dict(self):
         data = super().to_dict()
-        if self.thumbnail:
-            data['thumbnail'] = self.thumbnail
+        if self._thumbnail_dic:
+            data['thumbnail'] = self._thumbnail_dic
         if self.width:
             data['width'] = self.width
         if self.height:
@@ -11594,8 +11696,8 @@ class InputPaidMediaVideo(InputPaidMedia):
             data['duration'] = self.duration
         if self.supports_streaming is not None:
             data['supports_streaming'] = self.supports_streaming
-        if self.cover:
-            data['cover'] = self.cover
+        if self._cover_dic:
+            data['cover'] = self._cover_dic
         if self.start_timestamp:
             data['start_timestamp'] = self.start_timestamp
         return data
@@ -12203,7 +12305,7 @@ class OwnedGiftRegular(OwnedGift):
         self.gift: Gift = gift
         self.owned_gift_id: Optional[str] = owned_gift_id
         self.sender_user: Optional[User] = sender_user
-        self.send_date: Optional[int] = send_date
+        self.send_date: int = send_date
         self.text: Optional[str] = text
         self.entities: Optional[List[MessageEntity]] = entities
         self.is_private: Optional[bool] = is_private
@@ -12271,7 +12373,7 @@ class OwnedGiftUnique(OwnedGift):
         self.gift: UniqueGift = gift
         self.owned_gift_id: Optional[str] = owned_gift_id
         self.sender_user: Optional[User] = sender_user
-        self.send_date: Optional[int] = send_date
+        self.send_date: int = send_date
         self.is_saved: Optional[bool] = is_saved
         self.can_be_transferred: Optional[bool] = can_be_transferred
         self.transfer_star_count: Optional[int] = transfer_star_count
@@ -12551,7 +12653,7 @@ class InputStoryContentPhoto(InputStoryContent):
     Telegram documentation: https://core.telegram.org/bots/api#inputstorycontentphoto
 
     :param type: Type of the content, must be photo
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param photo: The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>.
     :type photo: :class:`telebot.types.InputFile`
@@ -12586,7 +12688,7 @@ class InputStoryContentVideo(InputStoryContent):
     Telegram documentation: https://core.telegram.org/bots/api#inputstorycontentvideo
 
     :param type: Type of the content, must be video
-    :type type: :class:`InputMediaVideo`
+    :type type: :obj:`str`
 
     :param video: The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the video was uploaded using multipart/form-data under <file_attach_name>.
     :type video: :class:`telebot.types.InputFile`
@@ -12603,8 +12705,10 @@ class InputStoryContentVideo(InputStoryContent):
     :return: Instance of the class
     :rtype: :class:`InputStoryContentVideo`
     """
-    def __init__(self, video: InputFile, duration: Optional[float] = None, cover_frame_timestamp: Optional[float] = None,
-                    is_animation: Optional[bool] = None, **kwargs):
+    def __init__(
+        self, video: InputFile, duration: Optional[float] = None,
+        cover_frame_timestamp: Optional[float] = None,
+        is_animation: Optional[bool] = None, **kwargs):
         super().__init__(type="video")
         self.video: InputFile = video
         self._video_name = service_utils.generate_random_token()
@@ -12768,7 +12872,8 @@ class StoryAreaTypeLocation(StoryAreaType):
     :return: Instance of the class
     :rtype: :class:`StoryAreaTypeLocation`
     """
-    def __init__(self,latitude: float, longitude: float, address: LocationAddress = None, **kwargs):
+    def __init__(self, latitude: float, longitude: float, address: Optional[LocationAddress] = None,
+                 **kwargs):
         super().__init__(type="location")
         self.latitude: float = latitude
         self.longitude: float = longitude
@@ -12809,7 +12914,8 @@ class StoryAreaTypeSuggestedReaction(StoryAreaType):
     :return: Instance of the class
     :rtype: :class:`StoryAreaTypeSuggestedReaction`
     """
-    def __init__(self, reaction_type: ReactionType, is_dark: Optional[bool] = None, is_flipped: Optional[bool] = None, **kwargs):
+    def __init__(self, reaction_type: ReactionType, is_dark: Optional[bool] = None,
+                 is_flipped: Optional[bool] = None, **kwargs):
         super().__init__(type="suggested_reaction")
         self.reaction_type: ReactionType = reaction_type
         self.is_dark: Optional[bool] = is_dark
@@ -13133,8 +13239,8 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     :param type: Type of the profile photo, must be static
     :type type: :obj:`str`
 
-    :param photo: The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    :type photo: :obj:`str`
+    :param photo: The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>
+    :type photo: :class:`telebot.types.InputFile`
 
     :return: Instance of the class
     :rtype: :class:`InputProfilePhotoStatic`
@@ -13169,8 +13275,8 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     :param type: Type of the profile photo, must be animated
     :type type: :obj:`str`
 
-    :param animation: The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    :type animation: :obj:`str`
+    :param animation: The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass “attach://<file_attach_name>” if the photo was uploaded using multipart/form-data under <file_attach_name>
+    :type animation: :class:`telebot.types.InputFile`
 
     :param main_frame_timestamp: Optional. Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
     :type main_frame_timestamp: :obj:`float`
@@ -13958,7 +14064,9 @@ class VideoQuality(JsonDeserializable):
     :return: Instance of the class
     :rtype: :class:`VideoQuality`
     """
-    def __init__(self, file_id: str, file_unique_id: str, width: int, height: int, codec: str, file_size: Optional[int] = None, **kwargs):
+    def __init__(
+        self, file_id: str, file_unique_id: str, width: int, height: int,
+        codec: str, file_size: Optional[int] = None, **kwargs):
         self.file_id: str = file_id
         self.file_unique_id: str = file_unique_id
         self.width: int = width
@@ -14020,7 +14128,10 @@ class KeyboardButtonRequestManagedBot(JsonSerializable):
     :return: Instance of the class
     :rtype: :class:`KeyboardButtonRequestManagedBot`
     """
-    def __init__(self, request_id: int, suggested_name: Optional[str] = None, suggested_username: Optional[str] = None, **kwargs):
+    def __init__(
+        self, request_id: int,
+        suggested_name: Optional[str] = None,
+        suggested_username: Optional[str] = None, **kwargs):
         self.request_id: int = request_id
         self.suggested_name: Optional[str] = suggested_name
         self.suggested_username: Optional[str] = suggested_username
@@ -14266,10 +14377,16 @@ class PollMedia(JsonDeserializable):
     :rtype: :class:`PollMedia`
 
     """
-    def __init__(self, animation: Optional[Animation] = None, audio: Optional[Audio] = None, document: Optional[Document] = None,
-                    live_photo: Optional[LivePhoto] = None, location: Optional[Location] = None, photo: Optional[List[PhotoSize]] = None,
-                    sticker: Optional[Sticker] = None, venue: Optional[Venue] = None, video: Optional[Video] = None, link: Optional[Link] = None,
-                    **kwargs):
+    def __init__(
+        self, animation: Optional[Animation] = None,
+        audio: Optional[Audio] = None,
+        document: Optional[Document] = None,
+        live_photo: Optional[LivePhoto] = None,
+        location: Optional[Location] = None,
+        photo: Optional[List[PhotoSize]] = None,
+        sticker: Optional[Sticker] = None, venue: Optional[Venue] = None,
+        video: Optional[Video] = None, link: Optional[Link] = None,
+        **kwargs):
         self.animation: Optional[Animation] = animation
         self.audio: Optional[Audio] = audio
         self.document: Optional[Document] = document
@@ -14315,7 +14432,7 @@ class InputMediaLink(InputMedia):
     Telegram documentation: https://core.telegram.org/bots/api#inputmedialink
 
     :param type: Type of the media, must be link
-    :type type: :class:`InputMedia`
+    :type type: :obj:`str`
 
     :param url: HTTP URL of the link
     :type url: :obj:`str`
@@ -14380,8 +14497,12 @@ class LivePhoto(JsonDeserializable):
     :return: Instance of the class
     :rtype: :class:`LivePhoto`
     """
-    def __init__(self, file_id: str, file_unique_id: str, width: int, height: int, duration: int, photo: Optional[List[PhotoSize]] = None,
-                    mime_type: Optional[str] = None, file_size: Optional[int] = None, **kwargs):
+    def __init__(
+        self, file_id: str, file_unique_id: str, width: int, height: int,
+        duration: int,
+        photo: Optional[List[PhotoSize]] = None,
+        mime_type: Optional[str] = None, file_size: Optional[int] = None,
+        **kwargs):
         self.photo: Optional[List[PhotoSize]] = photo
         self.file_id: str = file_id
         self.file_unique_id: str = file_unique_id
@@ -15527,7 +15648,7 @@ class RichBlockTableCell(JsonDeserializable, Dictionaryable):
             data['rowspan'] = self.rowspan
         return data
 
-    
+
 class RichBlockListItem(JsonDeserializable):
     """
     This object represents an item of a list.
@@ -16452,9 +16573,13 @@ class InputMediaVoiceNote(InputMedia):
     :return: Instance of the class
     :rtype: :class:`InputMediaVoiceNote`
     """
-    def __init__(self, media: str, caption: Optional[str] = None, parse_mode: Optional[str] = None, caption_entities: Optional[List[MessageEntity]] = None,
-                    duration: Optional[int] = None, **kwargs):
-        super().__init__(type='voice_note', media=media, caption=caption, parse_mode=parse_mode, caption_entities=caption_entities)
+    def __init__(
+        self, media: str, caption: Optional[str] = None, parse_mode: Optional[str] = None,
+        caption_entities: Optional[List[MessageEntity]] = None,
+        duration: Optional[int] = None, **kwargs):
+        super().__init__(
+            type='voice_note', media=media, caption=caption,
+            parse_mode=parse_mode, caption_entities=caption_entities)
         self.duration: Optional[int] = duration
 
     def to_dict(self) -> dict:

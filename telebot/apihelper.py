@@ -3092,6 +3092,18 @@ def convert_input_media_array(array):
                     thumbnail_key = 'thumbnail_' + key  
                     files[thumbnail_key] = thumbnail    
                     media_dict['thumbnail'] = 'attach://' + thumbnail_key   
+            if 'cover' in media_dict:
+                cover = media_dict['cover']
+                if isinstance(cover, types.InputFile):
+                    cover_key = 'cover_' + key
+                    files[cover_key] = cover
+                    media_dict['cover'] = 'attach://' + cover_key
+            if 'photo' in media_dict:
+                photo = media_dict['photo']
+                if isinstance(photo, types.InputFile):
+                    photo_key = 'photo_' + key
+                    files[photo_key] = photo
+                    media_dict['photo'] = 'attach://' + photo_key
             media.append(media_dict)
     return json.dumps(media), files
 
