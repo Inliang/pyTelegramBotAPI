@@ -995,6 +995,7 @@ class MessageID(JsonDeserializable, ABC):
         log_deprecation_warning('The class "MessageID" is deprecated, use "MessageId" instead')
 
 
+# noinspection missing-constructor
 class MessageId(MessageID):
     """
     This object represents a unique message identifier.
@@ -3686,7 +3687,7 @@ class ChatMemberAdministrator(ChatMember):
     :rtype: :class:`telebot.types.ChatMemberAdministrator`
     """
     def __init__(
-        self, user: ChatMember, status: str, can_be_edited: bool, is_anonymous: bool,
+        self, user: User, status: str, can_be_edited: bool, is_anonymous: bool,
         can_manage_chat: bool, can_delete_messages: bool,
         can_manage_video_chats: bool, can_restrict_members: bool, can_promote_members: bool,
         can_change_info: bool, can_invite_users: bool, can_post_stories: bool,
@@ -6911,8 +6912,10 @@ class InputMedia(Dictionaryable, JsonSerializable):
         self.caption_entities: Optional[List[MessageEntity]] = caption_entities
         self.thumbnail: Optional[InputFile] = thumbnail
 
-        # Media in fact cannot be None: empty media is poped in appropriate classes below
-        if service_utils.is_string(self.media):
+        if media is None:
+            self._media_name = ''
+            self._media_dic = None
+        elif service_utils.is_string(self.media):
             self._media_name = ''
             self._media_dic = self.media
         else:
@@ -6923,7 +6926,7 @@ class InputMedia(Dictionaryable, JsonSerializable):
             self._thumbnail_name = ''
             self._thumbnail_dic = None
         elif service_utils.is_string(self.thumbnail):
-            # It cannot be string because cannot be reused
+            # In fact t cannot be string because cannot be reused
             self._thumbnail_name = ''
             self._thumbnail_dic = self.thumbnail
         else:
@@ -6955,16 +6958,20 @@ class InputMedia(Dictionaryable, JsonSerializable):
         """
         :meta private:
         """
+        files = {}
         if self.media is None:
-            return self.to_json(), None
+            pass
         elif service_utils.is_string(self.media):
-            return self.to_json(), None
-
-        media_dict = {self._media_name: self.media}
-        if self._thumbnail_name:
-            media_dict[self._thumbnail_name] = self.thumbnail
-
-        return self.to_json(), media_dict
+            pass
+        else:
+            files[self._media_name] = self.media
+        if self.thumbnail is None:
+            pass
+        elif service_utils.is_string(self.thumbnail):
+            pass
+        else:
+            files[self._thumbnail_name] = self.thumbnail
+        return self.to_json(), files
 
 
 class InputMediaPhoto(InputMedia):
@@ -7121,6 +7128,16 @@ class InputMediaVideo(InputMedia):
         if self.start_timestamp:
             ret['start_timestamp'] = self.start_timestamp
         return ret
+
+    def convert_input_media(self):
+        media_json, files = super(InputMediaVideo, self).convert_input_media()
+        if self.cover is None:
+            pass
+        elif service_utils.is_string(self.cover):
+            pass
+        else:
+            files[self._cover_name] = self.cover
+        return media_json, files
 
 
 class InputMediaAnimation(InputMedia):
@@ -7345,7 +7362,7 @@ class InputMediaLivePhoto(InputMedia):
     :rtype: :class:`telebot.types.InputMediaLivePhoto`
     """
     def __init__(
-        self, media: Union[str, InputFile], photo: Union[str, InputFile] = None,
+        self, media: Union[str, InputFile], photo: Union[str, InputFile],
         caption: Optional[str] = None, parse_mode: Optional[str] = None,
         caption_entities: Optional[List[MessageEntity]] = None,
         show_caption_above_media: Optional[bool] = None,
@@ -7375,12 +7392,12 @@ class InputMediaLivePhoto(InputMedia):
         return json_dict
 
     def convert_input_media(self):
-        media, files = super(InputMediaLivePhoto, self).convert_input_media()
-        if not service_utils.is_string(self.photo):
-            if files is None:
-                files = {}
+        media_json, files = super(InputMediaLivePhoto, self).convert_input_media()
+        if service_utils.is_string(self.photo):
+            pass
+        else:
             files[self._photo_name] = self.photo
-        return media, files
+        return media_json, files
 
 
 class InputMediaLocation(InputMedia):
@@ -7416,7 +7433,6 @@ class InputMediaLocation(InputMedia):
         json_dict['longitude'] = self.longitude
         if self.horizontal_accuracy is not None:
             json_dict['horizontal_accuracy'] = self.horizontal_accuracy
-        json_dict.pop('media', None)   # Remove 'media' field as it's not used for location
         return json_dict
 
 
@@ -7515,7 +7531,6 @@ class InputMediaVenue(InputMedia):
             json_dict['google_place_id'] = self.google_place_id
         if self.google_place_type:
             json_dict['google_place_type'] = self.google_place_type
-        json_dict.pop('media', None)    # Remove 'media' field as it's not used for venue
         return json_dict
     
 
@@ -8196,7 +8211,7 @@ class MenuButtonCommands(MenuButton):
     :rtype: :class:`telebot.types.MenuButtonCommands`
     """
 
-    def __init__(self, type: str = None, **kwargs):
+    def __init__(self, **kwargs):
         self.type: str = "commands"
 
     def to_dict(self):
@@ -8226,7 +8241,7 @@ class MenuButtonWebApp(MenuButton):
     :rtype: :class:`telebot.types.MenuButtonWebApp`
     """
 
-    def __init__(self, type: str, text: str, web_app: WebAppInfo, **kwargs):
+    def __init__(self, text: str, web_app: WebAppInfo, **kwargs):
         self.type: str = "web_app"
         self.text: str = text
         self.web_app: WebAppInfo = web_app
@@ -8251,7 +8266,7 @@ class MenuButtonDefault(MenuButton):
     :return: Instance of the class
     :rtype: :class:`telebot.types.MenuButtonDefault`
     """
-    def __init__(self, type: str = None, **kwargs):
+    def __init__(self, **kwargs):
         self.type: str = "default"
 
     def to_dict(self):
@@ -10297,7 +10312,6 @@ class InaccessibleMessage(JsonDeserializable):
     @staticmethod
     def __universal_deprecation(property_name):
         log_deprecation_warning(f'Deprecation warning: the field "{property_name}" is not accessible for InaccessibleMessage. You should check if your object is Message instance before access.')
-        return None
 
     def __getattr__(self, item):
         if item in [
@@ -10315,7 +10329,8 @@ class InaccessibleMessage(JsonDeserializable):
             'giveaway', 'giveaway_winners', 'giveaway_completed', 'video_chat_scheduled', 'video_chat_started',
             'video_chat_ended', 'video_chat_participants_invited', 'web_app_data', 'reply_markup'
         ]:
-            return self.__universal_deprecation(item)
+            self.__universal_deprecation(item)
+            return
         else:
             raise AttributeError(f'"{self.__class__.__name__}" object has no attribute "{item}"')
 
@@ -11417,6 +11432,7 @@ class PaidMediaPreview(PaidMedia):
         return cls(**obj)
 
 
+# noinspection PyShadowingBuiltins
 class PaidMediaLivePhoto(PaidMedia):
     """
     The paid media is a live photo.
@@ -12426,8 +12442,7 @@ class OwnedGifts(JsonDeserializable):
     :rtype: :class:`OwnedGifts`
 
     """
-    def __init__(self, total_count: int, gifts: List[OwnedGift], next_offset: Optional[str] = None,
-                 limit: Optional[int] = None, **kwargs):
+    def __init__(self, total_count: int, gifts: List[OwnedGift], next_offset: Optional[str] = None, **kwargs):
         self.total_count: int = total_count
         self.gifts: List[OwnedGift] = gifts
         self.next_offset: Optional[str] = next_offset
@@ -14567,6 +14582,7 @@ class BotAccessSettings(JsonDeserializable):
         return cls(**obj)
 
 
+# noinspection shadowing-builtins
 class RichText(JsonDeserializable, Dictionaryable, ABC):
     """
     This object represents a rich formatted text. Currently, it can be either a String for plain text,
@@ -15667,6 +15683,7 @@ class RichBlockTableCell(JsonDeserializable, Dictionaryable):
         return data
 
 
+# noinspection shadowing-builtins
 class RichBlockListItem(JsonDeserializable):
     """
     This object represents an item of a list.
@@ -15710,6 +15727,7 @@ class RichBlockListItem(JsonDeserializable):
         return cls(**obj)
 
 
+# noinspection shadowing-builtins
 class RichBlock(JsonDeserializable, ABC):
     """
     This object represents a block in a rich formatted message. Currently, it can be any of the following types:
@@ -16607,6 +16625,7 @@ class InputMediaVoiceNote(InputMedia):
         return data
 
 
+# noinspection shadowing-builtins
 class InputRichMessageMedia(Dictionaryable, JsonSerializable):
     """
     This object represents a media element embedded in an outgoing rich message.
@@ -16637,6 +16656,7 @@ class InputRichMessageMedia(Dictionaryable, JsonSerializable):
         return json.dumps(self.to_dict())
 
 
+# noinspection shadowing-builtins
 class InputRichBlockListItem(Dictionaryable, JsonSerializable):
     """
     An item of a list to be sent.
@@ -16687,6 +16707,7 @@ class InputRichBlockListItem(Dictionaryable, JsonSerializable):
         return json.dumps(self.to_dict())
 
 
+# noinspection shadowing-builtins
 class InputRichBlock(Dictionaryable, JsonSerializable):
     """
     This object represents a block in a rich formatted message to be sent.
@@ -17383,6 +17404,7 @@ class InputRichBlockThinking(InputRichBlock):
         return data
     
 
+# noinspection shadowing-builtins
 class Community(JsonDeserializable):
     """
     Represents a community (a group of chats).
