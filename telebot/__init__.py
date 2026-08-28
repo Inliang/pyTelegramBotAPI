@@ -75,7 +75,7 @@ class ExceptionHandler:
     Class for handling exceptions while Polling
     """
 
-    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    # noinspection PyMethodMayBeStatic,unused-parameter
     def handle(self, exception):
         return False
 
@@ -6017,7 +6017,7 @@ class TeleBot:
 
 
     def edit_message_media(
-            self, media: Any, chat_id: Optional[Union[int, str]]=None,
+            self, media: types.InputMedia, chat_id: Optional[Union[int, str]]=None,
             message_id: Optional[int]=None,
             inline_message_id: Optional[str]=None,
             reply_markup: Optional[types.InlineKeyboardMarkup]=None,
@@ -6033,7 +6033,8 @@ class TeleBot:
         Telegram documentation: https://core.telegram.org/bots/api#editmessagemedia
 
         :param media: A JSON-serialized object for a new media content of the message
-        :type media: :obj:`InputMedia`
+        :type media: :obj:`types.InputMedia`
+
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
         :type chat_id: :obj:`int` or :obj:`str`
 

@@ -3076,22 +3076,21 @@ def convert_input_media(media):
     return None, None
 
 
+# noinspection protected-member
 def convert_input_media_array(array):
     media = []
     files = {}
     for input_media in array:
         if isinstance(input_media, types.InputMedia) or isinstance(input_media, types.InputPaidMedia):
             media_dict = input_media.to_dict()
-            key = "x" # stub
-            if media_dict['media'].startswith('attach://'):
-                key = media_dict['media'].replace('attach://', '')
-                files[key] = input_media.media
-            if 'thumbnail' in media_dict:
-                thumbnail = media_dict['thumbnail']
-                if isinstance(thumbnail, types.InputFile):
-                    thumbnail_key = 'thumbnail_' + key  
-                    files[thumbnail_key] = thumbnail    
-                    media_dict['thumbnail'] = 'attach://' + thumbnail_key   
+            if ('media' in media_dict) and media_dict['media'].startswith('attach://'):
+                files[input_media._media_name] = input_media.media
+            if ('thumbnail' in media_dict) and media_dict['thumbnail'].startswith('attach://'):
+                files[input_media._thumbnail_name] = input_media.thumbnail
+            if ('cover' in media_dict) and media_dict['cover'].startswith('attach://'):
+                files[input_media._cover_name] = input_media.cover
+            if ('photo' in media_dict) and media_dict['photo'].startswith('attach://'):
+                files[input_media._photo_name] = input_media.photo
             media.append(media_dict)
     return json.dumps(media), files
 
